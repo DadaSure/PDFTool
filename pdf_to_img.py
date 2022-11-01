@@ -21,7 +21,6 @@ def batchPDFConvert(inputDir):
 
     pdfCount = 0
     imageCount = 0
-    docCount = 0
 
     for parent, dirnames, filenames in os.walk(inputDir):
         for filename in filenames:
@@ -29,21 +28,19 @@ def batchPDFConvert(inputDir):
             print(pdf_path)
             if(pdf_path.endswith('.pdf')):
                 pdfCount+=1
-                imagePlus, docPlus = singlePDFConvert(pdf_path, outputDir=outputDir)
+                imagePlus = singlePDFConvert(pdf_path, outputDir=outputDir)
                 imageCount += imagePlus
-                docCount += docPlus
     
-    print("PDF to Image Conversion Finished! %s PDF File(s), %s Documents, %s Pages/Images" % (pdfCount,docCount, imageCount))
+    print("PDF to Image Conversion Finished! %s PDF File(s), %s Image(s)" % (pdfCount, imageCount))
 
 def singlePDFConvert(filePath, outputDir):
-    #Read File and Document Numbers
-    #filePath = input("Please input the path of the PDF file to be converted:")
-    #docNumbersInput = input("Pleas input the document numbers in the PDF file, spliting in comma:")
+    #Read File
+
     fileNameWithExtension = str(os.path.basename(filePath))
     if not fileNameWithExtension.endswith('.pdf'):
         return (0,0)
     fileName = fileNameWithExtension.split('.')[0]
-    docNumbers = hangleNumberRange(fileName=fileName)
+    # docNumbers = hangleNumberRange(fileName=fileName)
     #print(filePath)
     #print(docNumbers)
     #C:/Users/slrla/OneDrive/Documents/Shuo/SplitingCharDocuments/SKM_75822101016280.pdf
@@ -54,21 +51,22 @@ def singlePDFConvert(filePath, outputDir):
         exit()
     pdfDoc = fitz.open(filePath)
     pageOfTheDoc = pdfDoc.page_count
-    if (len(docNumbers)*4 != pageOfTheDoc):
-        print("ERROR: docNumbers does not match actual pages, please check and retry")
-        exit()
+    # if (len(docNumbers)*4 != pageOfTheDoc):
+    #     print("ERROR: docNumbers does not match actual pages, please check and retry")
+    #     exit()
     
     #Initialize
     #fileDir = os.path.dirname(filePath)#Directory of the Input PDF File
     fileDir = outputDir
     currentPageInADoc = 0
-    currentDoc = 0
+    # currentDoc = 0
     successfulWriteCount = 0
 
     #Start Convert
     for pg in range(pageOfTheDoc):
         #Get Directory to Write the PNG
-        outputDir = str(fileDir)+'/'+str(docNumbers[currentDoc])#Save PNG to the Same Level of Path of the PDF
+        # outputDir = str(fileDir)+'/'+str(docNumbers[currentDoc])#Save PNG to the Same Level of Path of the PDF
+        outputDir = str(fileDir)+'/'+str(fileName)#Save PNG to the Same Level of Path of the PDF
         if(currentPageInADoc==0 and not os.path.exists(outputDir)):
             os.makedirs(outputDir)
         os.chdir(outputDir)
@@ -76,18 +74,18 @@ def singlePDFConvert(filePath, outputDir):
         pageData = pdfDoc[pg]
         mat = fitz.Matrix(3.0, 3.0)
         pixData = pageData.get_pixmap(matrix=mat)
-        pixData.save(outputDir+'/'+'%s_%s.png' % (docNumbers[currentDoc],(currentPageInADoc+1)))
+        pixData.save(outputDir+'/'+'%s_%s.png' % (fileName,(currentPageInADoc+1)))
         #Change Counters After Wrote the PNG
         successfulWriteCount += 1
         currentPageInADoc += 1
-        #There are 4 pages in a Document, if current page == 4, means a Document finished
-        #Move on to the next one
-        if(currentPageInADoc == 4):
-            currentDoc += 1
-            currentPageInADoc = 0
-        #If currentDoc == length of the docNumbers, means all Document finished, break
-        if(currentDoc == len(docNumbers)):
-            break
+        # #There are 4 pages in a Document, if current page == 4, means a Document finished
+        # #Move on to the next one
+        # if(currentPageInADoc == 4):
+        #     currentDoc += 1
+        #     currentPageInADoc = 0
+        # #If currentDoc == length of the docNumbers, means all Document finished, break
+        # if(currentDoc == len(docNumbers)):
+        #     break
     
     #Check if there's no problem
     if(successfulWriteCount != pageOfTheDoc):
@@ -95,7 +93,7 @@ def singlePDFConvert(filePath, outputDir):
         exit()
 
     #print("Finished! %s pages of %s Documents converted!" % (successfulWriteCount, len(docNumbers)))
-    return (successfulWriteCount, len(docNumbers))
+    return (successfulWriteCount)
 
 
 def hangleNumberRange(fileName):
@@ -122,21 +120,21 @@ def hangleNumberRange(fileName):
     #print(docNumbersArr)
     return docNumbersArr
 
-def pyMuPDF_fitz(pdfPath, imagePath):
-    print("imagePath="+imagePath)
-    pdfDoc = fitz.open(pdfPath)
-    for pg in range(pdfDoc.page_count):
-        page = pdfDoc[pg]
+# def pyMuPDF_fitz(pdfPath, imagePath):
+#     print("imagePath="+imagePath)
+#     pdfDoc = fitz.open(pdfPath)
+#     for pg in range(pdfDoc.page_count):
+#         page = pdfDoc[pg]
         
-        mat = fitz.Matrix(3.0,3.0)
+#         mat = fitz.Matrix(3.0,3.0)
 
-        pix = page.get_pixmap(matrix=mat)
+#         pix = page.get_pixmap(matrix=mat)
 
-        if not os.path.exists(imagePath):
-            os.makedirs(imagePath)
+#         if not os.path.exists(imagePath):
+#             os.makedirs(imagePath)
 
-        #pix.writePNG(f'{imagePath}/{page}.png')
-        pix.writePNG(imagePath+'/'+'images_%s.png' % pg)
+#         #pix.writePNG(f'{imagePath}/{page}.png')
+#         pix.writePNG(imagePath+'/'+'images_%s.png' % pg)
 
 if __name__ == "__main__":
     #pdfPath = "C:/Users/slrla/OneDrive/Documents/Shuo/SplitingCharDocuments/SKM_75822100714380.pdf"
