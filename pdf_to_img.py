@@ -1,5 +1,6 @@
 from struct import pack
 import sys, fitz, os, datetime
+import time
 from cv2 import rotate
 import numpy as np
 
@@ -22,6 +23,8 @@ def batchPDFConvert(inputDir):
     pdfCount = 0
     imageCount = 0
 
+    T_start = time.process_time()
+
     for parent, dirnames, filenames in os.walk(inputDir):
         for filename in filenames:
             pdf_path = os.path.join(parent, filename)
@@ -29,9 +32,12 @@ def batchPDFConvert(inputDir):
             if(pdf_path.endswith('.pdf')):
                 pdfCount+=1
                 imagePlus = singlePDFConvert(pdf_path, outputDir=outputDir)
-                imageCount += imagePlus
+                imageCount += imagePlus  # type: ignore
     
-    print("PDF to Image Conversion Finished! %s PDF File(s), %s Image(s)" % (pdfCount, imageCount))
+    T_end = time.process_time()
+    time_used = int(T_end-T_start)
+
+    print("PDF to Image Conversion Finished! %s PDF File(s), %s Image(s), Time %ss" % (pdfCount, imageCount, time_used))
 
 def singlePDFConvert(filePath, outputDir):
     #Read File
@@ -49,7 +55,7 @@ def singlePDFConvert(filePath, outputDir):
     if not (os.path.exists(filePath)):
         print("ERROR: Input file does not exist (pay attention to the path format)")
         exit()
-    pdfDoc = fitz.open(filePath)
+    pdfDoc = fitz.open(filePath)  # type: ignore
     pageOfTheDoc = pdfDoc.page_count
     # if (len(docNumbers)*4 != pageOfTheDoc):
     #     print("ERROR: docNumbers does not match actual pages, please check and retry")
@@ -93,7 +99,7 @@ def singlePDFConvert(filePath, outputDir):
         exit()
 
     #print("Finished! %s pages of %s Documents converted!" % (successfulWriteCount, len(docNumbers)))
-    return (successfulWriteCount)
+    return successfulWriteCount
 
 
 def hangleNumberRange(fileName):
