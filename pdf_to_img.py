@@ -103,6 +103,7 @@ def singlePDFConvert(filePath, outputDir):
 
 
 def hangleNumberRange(fileName):
+    #[1,2,3-10,12, 13-15]
     #split using ','
     docNumbersArr = list(fileName.split(','))
     #print(docNumbersArr)
