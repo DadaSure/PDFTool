@@ -12,6 +12,8 @@ def adjust_page_width(file_path, width):
     for ipage in src:
         ratio = ipage.rect.width / width
         height = ipage.rect.height / ratio
+        
+
         page = doc.new_page(width=width, height=height)  # type: ignore
         page.show_pdf_page(page.rect, src, ipage.number)
     doc.save(output_file)
@@ -37,7 +39,10 @@ def pdf_compression(file_path, ratio):
         os.mkdir(tmp_dir)
     doc = fitz.Document(file_path)
     for page in doc:
-        mat = fitz.Matrix(ratio/100.0, ratio/100.0)
+        #1277x720 -> Matrix(1,1) ->957*540
+        #multiply and consant to preseve original ratio
+        constant = 4/3
+        mat = fitz.Matrix(constant*ratio/100.0, constant*ratio/100.0)
         pix = page.get_pixmap(matrix=mat)# type: ignore
         pix.save(tmp_dir + "/" + str(page.number) + ".jpg")
     output = fitz.Document()
@@ -52,7 +57,7 @@ def pdf_compression(file_path, ratio):
 
 
 if __name__ == '__main__':
-    testFilePath = "/Users/shuo/Documents/PyProjects/PDFTest/Hand Interfaces - Using Hands to Imitate Objects in AR:VR for Expressive Interactions.pdf"
-    # adjust_page_width(testFilePath, 250)
-    # change_pdf_to_images(testFilePath)
-    pdf_compression(testFilePath, 75)
+    testFilePath = "/Users/shuo/Documents/PyProjects/PDFTest/Vue1-10.pdf"
+    # adjust_page_width(testFilePath, 300)
+    change_pdf_to_images(testFilePath)
+    # pdf_compression(testFilePath, 50)
