@@ -6,17 +6,21 @@ import fitz
 
 
 def adjust_page_width(file_path, width):
+    #221112 效果有点奇怪
     output_file = file_path.split(".pdf")[-2] + "_width_" + str(width) + ".pdf"
-    src = fitz.Document(file_path)
-    doc = fitz.Document()
-    for ipage in src:
+    srcDoc = fitz.Document(file_path)
+    newDoc = fitz.Document()
+    for ipage in srcDoc:
         ratio = ipage.rect.width / width
         height = ipage.rect.height / ratio
-        
+        page = newDoc.new_page(width=width, height=height)  # type: ignore
+        # page.show_pdf_page(page.rect, srcDoc, ipage.number)
+        constant = 4/3
+        mat = fitz.Matrix(constant*ratio/100.0, constant*ratio/100.0)
+        pix = page.get_svg_image(matrix=mat)# type: ignore
 
-        page = doc.new_page(width=width, height=height)  # type: ignore
-        page.show_pdf_page(page.rect, src, ipage.number)
-    doc.save(output_file)
+        page.insert_image(pix)
+    newDoc.save(output_file)
 
 
 def change_pdf_to_images(file_path):
@@ -58,6 +62,6 @@ def pdf_compression(file_path, ratio):
 
 if __name__ == '__main__':
     testFilePath = "/Users/shuo/Documents/PyProjects/PDFTest/Vue1-10.pdf"
-    # adjust_page_width(testFilePath, 300)
-    change_pdf_to_images(testFilePath)
+    adjust_page_width(testFilePath, 2000)
+    # change_pdf_to_images(testFilePath)
     # pdf_compression(testFilePath, 50)
