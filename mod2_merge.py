@@ -35,7 +35,7 @@ def PDF_delete_page(pdfpath, pagerange):
 
 
 #PDF re-arrange
-def PDF_adjust_page(pdfpath, re_order, outputFolder):
+def PDF_adjust_page(pdfpath, re_order):
     output_file = pdfpath.split(".pdf")[-2] + "ajust_page" + ".pdf"
     pdf = fitz.open(pdfpath)
     pdf.select(re_order) # Input ordered page
