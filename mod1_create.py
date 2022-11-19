@@ -3,22 +3,40 @@ import fitz
 import cv2
 import glob
 import os
+import edge_detection
 
 
-def PDF_Create(imgdir):
-    output_file = imgdir + "/new_pdf.pdf"
-    doc = fitz.open()
-    pic = os.listdir(imgdir)
-    # print(pic)
-    imglist = [imgdir + "/" + x for x in pic]
-    # print(imglist)
-    for img in imglist:
-        if (img.endswith('png')):
-            imgdoc = fitz.open(img)  # open image as a document
-            pdfbytes = imgdoc.convert_to_pdf()  # make a 1-page PDF of it
-            imgpdf = fitz.open("pdf", pdfbytes)
-            doc.insert_pdf(imgpdf)  # insert the image PDF
-    doc.save(output_file)
+def PDF_Create(imgdir, use_edge_detection):
+    if use_edge_detection:
+        print("edge detection")
+        edge_detection.batchEdgeDetectionProcessing(imgdir)
+        output_file = imgdir + "/new_pdf.pdf"
+        doc = fitz.open()
+        pic = os.listdir(imgdir+"/edge_detection_output")
+        # print(pic)
+        imglist = [imgdir + "/" + x for x in pic]
+        # print(imglist)
+        for img in imglist:
+            if (img.endswith('png')):
+                imgdoc = fitz.open(img)  # open image as a document
+                pdfbytes = imgdoc.convert_to_pdf()  # make a 1-page PDF of it
+                imgpdf = fitz.open("pdf", pdfbytes)
+                doc.insert_pdf(imgpdf)  # insert the image PDF
+        doc.save(output_file)
+    else:
+        output_file = imgdir + "/new_pdf.pdf"
+        doc = fitz.open()
+        pic = os.listdir(imgdir)
+        # print(pic)
+        imglist = [imgdir + "/" + x for x in pic]
+        # print(imglist)
+        for img in imglist:
+            if (img.endswith('png')):
+                imgdoc = fitz.open(img)  # open image as a document
+                pdfbytes = imgdoc.convert_to_pdf()  # make a 1-page PDF of it
+                imgpdf = fitz.open("pdf", pdfbytes)
+                doc.insert_pdf(imgpdf)  # insert the image PDF
+        doc.save(output_file)
 
 
 def PDF_Merge(pdfdir):

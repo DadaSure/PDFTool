@@ -9,20 +9,6 @@ from matplotlib import image
 import os
 import math
 
-#File Path
-#inputPath='C:\\Users\\slrla\\OneDrive\\Desktop\\AIIDC\\pdf2png\\SKM_75822092714310\\SKM_75822092714310-1.png'
-#inputPath = "C:/Users/slrla/OneDrive/Documents/Shuo/SplitingCharDocuments/output/images_4.png"
-"""
-"C:/Users/slrla/OneDrive/Documents/Shuo/SplitingCharDocuments/output/images_0.png"
-"""
-"""
-SKM_75822092714310-1.png
-SKM_75822092714310-2.png X
-R1.jpg
-R2.jpg
-R3.jpg
-"""
-
 
 #Params
 gaussianBlurKernelSize=3#must be an Odd
@@ -37,7 +23,6 @@ class imageShowMode(Enum):
     showFinalResult = 1
     showEachStep = 2
 
-#def batchEdgeDetectionProcessing():
 def batchEdgeDetectionProcessing(inputDir):
     #Manual Input
     if inputDir == '0':
@@ -62,7 +47,7 @@ def batchEdgeDetectionProcessing(inputDir):
             print(pic_path)
             if(pic_path.endswith('.png')):
                 imageCount+=1
-                singleImageProcessingResult = singleImageProcessing(inputPath=pic_path, showMode=imageShowMode.dontShow)
+                singleImageProcessingResult = singleImageProcessing(inputPath=pic_path, showMode=imageShowMode.showEachStep)
                 # resultType = type(singleImageProcessingResult)
                 # print(resultType)
                 if (type(singleImageProcessingResult) == type(0)):
@@ -81,7 +66,7 @@ def batchEdgeDetectionProcessing(inputDir):
 
 
     print("Edge Dectection Processing Finished! Total: %s image(s) Success:%s image(s) Fail: %s images(s) Accuracy: %s" % (imageCount, sucessCount, failedCount, sucessCount/imageCount))
-                
+
 
 
 
@@ -94,19 +79,6 @@ def singleImageProcessing(inputPath, showMode):
     # cv2.waitKey(0)
     if showMode == imageShowMode.showEachStep:
         showImg('Original', img)
-
-    #Resize
-    # resize_ratio = 1 #save a copy of resize ratio
-    # width = int(img.shape[1] * resize_ratio)
-    # height = int(img.shape[0] * resize_ratio)
-    # resizedDim = (width, height)
-
-    # img = resize(img_original, resizedDim)
-    # showImg('Resized',img)
-
-    #Remove the red tick
-    img = remove_red_seal(img)
-    #showImg('Remove Red', img)
 
     # Convert to graycsale
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -211,9 +183,6 @@ def increaseContrast(image):
 def showImg(windowName, image):
     cv2.namedWindow(windowName, cv2.WINDOW_NORMAL)
     cv2.imshow(windowName, resize(image, (int(image.shape[0]*0.8), int(image.shape[1]*0.8))))
-    #cv2.imshow(windowName, resize(image, (700, 500)))
-    # cv2.namedWindow(windowName, cv2.WINDOW_AUTOSIZE)
-    # cv2.imshow(windowName, image)
     cv2.waitKey(0)
 
 def order_points(pts):
