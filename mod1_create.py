@@ -6,6 +6,7 @@ import os
 
 
 def PDF_Create(imgdir):
+    output_file = imgdir + "/new_pdf.pdf"
     doc = fitz.open()
     pic = os.listdir(imgdir)
     # print(pic)
@@ -17,10 +18,11 @@ def PDF_Create(imgdir):
             pdfbytes = imgdoc.convert_to_pdf()  # make a 1-page PDF of it
             imgpdf = fitz.open("pdf", pdfbytes)
             doc.insert_pdf(imgpdf)  # insert the image PDF
-    doc.save("allmyimages.pdf")
+    doc.save(output_file)
 
 
 def PDF_Merge(pdfdir):
+    output_file = pdfdir + "/merged_pdf.pdf"
     Merge = fitz.open()
     folder = os.listdir(pdfdir)
     print("These are the docs will be merged :", folder)
@@ -29,10 +31,14 @@ def PDF_Merge(pdfdir):
         if (pdf.endswith('pdf')):
             pdfdoc = fitz.open(pdf)
             Merge.insert_pdf(pdfdoc)
-    Merge.save("Merge.pdf")
+    Merge.save(output_file)
 
 
-def PDF_division(divdoc, range):
+def PDF_Division(divdoc, range):
+    output_folder = divdoc.split(".pdf")[-2]
+    if not (os.path.exists(output_folder)):
+        os.mkdir(output_folder)
+    os.chdir(output_folder)
     file = fitz.open(divdoc)
     docNumbersArr = list(range.split(','))
     for index, value in enumerate(docNumbersArr):
@@ -60,4 +66,4 @@ if __name__ == "__main__":
     # range = "1,2,3-4"
     PDF_Create(imgdir)
     PDF_Merge(pdfdir)
-    PDF_division(divdoc, range)
+    PDF_Division(divdoc, range)
