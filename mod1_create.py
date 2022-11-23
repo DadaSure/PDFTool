@@ -3,18 +3,19 @@ import fitz
 import cv2
 import glob
 import os
-import edge_detection
+import edge_detection_simplified
 
 
 def PDF_Create(imgdir, use_edge_detection):
     if use_edge_detection:
         print("edge detection")
-        edge_detection.batchEdgeDetectionProcessing(imgdir)
+        # edge_detection.batchEdgeDetectionProcessing(imgdir)
+        edge_detection_simplified.batchEdgeDetectionProcessing(inputDir=imgdir)
         output_file = imgdir + "/new_pdf.pdf"
         doc = fitz.open()
         pic = os.listdir(imgdir+"/edge_detection_output")
         # print(pic)
-        imglist = [imgdir + "/" + x for x in pic]
+        imglist = [imgdir + "/edge_detection_output/" + x for x in pic]
         # print(imglist)
         for img in imglist:
             if (img.endswith('png')):

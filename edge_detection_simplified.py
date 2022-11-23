@@ -7,10 +7,9 @@ def batchEdgeDetectionProcessing(inputDir):
     #Manual Input
     if inputDir == '0':
         inputDir = input("Please input the directory for processing (parent of the folders to be processed): ")
-    #inputDir = 'C:/Users/slrla/OneDrive/Documents/Shuo/SplitingTest221011/Naming'
 
     outputDir = inputDir + '/' + 'edge_detection_output'
-    #C:/Users/slrla/OneDrive/Documents/Shuo/SplitingCharDocuments
+
     if not (os.path.exists(inputDir)):
         print("ERROR: Input path does not exist (pay attention to the path format)")
         exit() 
@@ -27,7 +26,7 @@ def batchEdgeDetectionProcessing(inputDir):
             print(pic_path)
             if(pic_path.endswith('.png')):
                 imageCount+=1
-                singleImageProcessingResult = singleImageEdgeDetection(pic_path, True)
+                singleImageProcessingResult = singleImageEdgeDetection(pic_path, debugOption=False)
                 if (type(singleImageProcessingResult) == type(0)):
                     #fail
                     if(singleImageProcessingResult==0):
@@ -50,10 +49,13 @@ def singleImageEdgeDetection(imgPath, debugOption: bool):
     img = resizeImg(image)
     print('shape =', img.shape)
 
+    if debugOption:
+        showImg("Input Image", img)
+
     #do canny edge detection
     canny_img = getCanny(img)
     if debugOption:
-        showImg("canny", canny_img)
+        showImg("Canny Edge Detection", canny_img)
 
 
     #find the largest contour
@@ -61,7 +63,7 @@ def singleImageEdgeDetection(imgPath, debugOption: bool):
     max_contour, max_area = findMaxContour(canny_img)
     cv2.drawContours(imgContour, max_contour, -1, (0, 0, 255), 3)
     if debugOption:
-        showImg("maxcontour", imgContour)
+        showImg("The Max Contour", imgContour)
 
     #find the boxes of the largest contour
     imgBox = img.copy()
@@ -70,7 +72,7 @@ def singleImageEdgeDetection(imgPath, debugOption: bool):
         cv2.circle(imgBox, tuple(box), 5, (0, 0, 255), 2)
     print(boxes)
     if debugOption:
-        showImg("box", imgBox)
+        showImg("The Corners of the Max Contour", imgBox)
 
     #transform the contour box into a rect
     boxes = adaPoint(boxes, ratio)
@@ -78,7 +80,7 @@ def singleImageEdgeDetection(imgPath, debugOption: bool):
     # 透视变化
     warped = warpImage(image, boxes)
     if debugOption:
-        showImg("transform", warped)
+        showImg("Transform - Final Result", warped)
     
     if debugOption:
         cv2.destroyAllWindows()
