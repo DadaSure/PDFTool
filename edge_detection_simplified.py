@@ -1,7 +1,91 @@
 import cv2
 import numpy as np
- 
- 
+import os
+
+
+def batchEdgeDetectionProcessing(inputDir):
+    #Manual Input
+    if inputDir == '0':
+        inputDir = input("Please input the directory for processing (parent of the folders to be processed): ")
+    #inputDir = 'C:/Users/slrla/OneDrive/Documents/Shuo/SplitingTest221011/Naming'
+
+    outputDir = inputDir + '/' + 'edge_detection_output'
+    #C:/Users/slrla/OneDrive/Documents/Shuo/SplitingCharDocuments
+    if not (os.path.exists(inputDir)):
+        print("ERROR: Input path does not exist (pay attention to the path format)")
+        exit() 
+    os.chdir(inputDir)
+    
+    failedCount = 0
+    imageCount = 0
+
+    for parent, dirnames, filenames in os.walk(inputDir):
+        for filename in filenames:
+            if 'edge_detection_output' in parent or 'cutting_char_output' in parent:
+                break
+            pic_path = os.path.join(parent, filename)
+            print(pic_path)
+            if(pic_path.endswith('.png')):
+                imageCount+=1
+                singleImageProcessingResult = singleImageEdgeDetection(pic_path, True)
+                if (type(singleImageProcessingResult) == type(0)):
+                    #fail
+                    if(singleImageProcessingResult==0):
+                        failedCount+=1
+                else:
+                    #success
+                    savePNG(fileName=filename, image=singleImageProcessingResult, outputDir=outputDir)
+
+def singleImageEdgeDetection(imgPath, debugOption: bool):
+    fileNameWithExtension = str(os.path.basename(imgPath))
+    if not fileNameWithExtension.endswith('.png'):
+        return (0,0)
+    fileName = fileNameWithExtension.split('.')[0]
+
+    #read input image
+    image = cv2.imread(imgPath)
+
+    #save a ratio for the last step transform
+    ratio = 900 / image.shape[0]
+    img = resizeImg(image)
+    print('shape =', img.shape)
+
+    #do canny edge detection
+    canny_img = getCanny(img)
+    if debugOption:
+        showImg("canny", canny_img)
+
+
+    #find the largest contour
+    imgContour = img.copy()
+    max_contour, max_area = findMaxContour(canny_img)
+    cv2.drawContours(imgContour, max_contour, -1, (0, 0, 255), 3)
+    if debugOption:
+        showImg("maxcontour", imgContour)
+
+    #find the boxes of the largest contour
+    imgBox = img.copy()
+    boxes = getBoxPoint(max_contour)
+    for box in boxes:
+        cv2.circle(imgBox, tuple(box), 5, (0, 0, 255), 2)
+    print(boxes)
+    if debugOption:
+        showImg("box", imgBox)
+
+    #transform the contour box into a rect
+    boxes = adaPoint(boxes, ratio)
+    boxes = orderPoints(boxes)
+    # 透视变化
+    warped = warpImage(image, boxes)
+    if debugOption:
+        showImg("transform", warped)
+    
+    if debugOption:
+        cv2.destroyAllWindows()
+
+    return warped
+
+
 # 固定尺寸
 def resizeImg(image, height=900):
     h, w = image.shape[:2]
@@ -86,38 +170,26 @@ def warpImage(image, box):
     warped = cv2.warpPerspective(image, M, (w, h))
     return warped
 
- 
+def savePNG(fileName, image, outputDir):
+    if not os.path.exists(outputDir):
+        os.makedirs(outputDir)
+    os.chdir(outputDir)
+    cv2.imwrite(fileName, image)
+
+def showImg(windowName, image):
+    cv2.namedWindow(windowName, cv2.WINDOW_NORMAL)
+    # cv2.imshow(windowName, resize(image, (int(image.shape[0]*0.8), int(image.shape[1]*0.8))))
+    cv2.imshow(windowName, image)
+    cv2.waitKey(0)
+
+
+if __name__=="__main__":
+    batchEdgeDetectionProcessing('0')
+
+'''
 path = r'/Users/shuo/Documents/PyProjects/PDFTest/edge_detection/edge.png'
 outpath_canny = r'/Users/shuo/Documents/PyProjects/PDFTest/edge_detection/edge_canny.png'
 outpath_maxcontour = r'/Users/shuo/Documents/PyProjects/PDFTest/edge_detection/edge_contour.png'
 outpath_box = r'/Users/shuo/Documents/PyProjects/PDFTest/edge_detection/edge_box.png'
 outpath_transform = r'/Users/shuo/Documents/PyProjects/PDFTest/edge_detection/edge_transform.png'
-
-image = cv2.imread(path)
-ratio = 900 / image.shape[0]
-img = resizeImg(image)
-print('shape =', img.shape)
-
-canny_img = getCanny(img)
-cv2.imwrite(outpath_canny, canny_img)
-
-imgContour = img.copy()
-max_contour, max_area = findMaxContour(canny_img)
-cv2.drawContours(imgContour, max_contour, -1, (0, 0, 255), 3)
-cv2.imwrite(outpath_maxcontour, imgContour)
-
-imgBox = img.copy()
-boxes = getBoxPoint(max_contour)
-for box in boxes:
-   cv2.circle(imgBox, tuple(box), 5, (0, 0, 255), 2)
-print(boxes)
-cv2.imwrite(outpath_box, imgBox)
-
-boxes = adaPoint(boxes, ratio)
-boxes = orderPoints(boxes)
-# 透视变化
-warped = warpImage(image, boxes)
-cv2.imwrite(outpath_transform, warped)
-
- 
-# output:    shape = (900, 420, 3)
+'''
