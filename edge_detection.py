@@ -11,12 +11,13 @@ import math
 
 
 #Params
-gaussianBlurKernelSize=3#must be an Odd
-canny_thrs1=70
+gaussianBlurKernelSize=15#must be an Odd
+canny_thrs1=100
 canny_thrs2=200
 approxStepLength=0.05
-openCalcKernelSize=0
+openCalcKernelSize=5
 edgeDectectionLineAngleRestriction = 2
+dilateKernelSize = 3
 
 class imageShowMode(Enum):
     dontShow = 0
@@ -65,7 +66,7 @@ def batchEdgeDetectionProcessing(inputDir):
     #savePNG()
 
 
-    print("Edge Dectection Processing Finished! Total: %s image(s) Success:%s image(s) Fail: %s images(s) Accuracy: %s" % (imageCount, sucessCount, failedCount, sucessCount/imageCount))
+    #print("Edge Dectection Processing Finished! Total: %s image(s) Success:%s image(s) Fail: %s images(s) Accuracy: %s" % (imageCount, sucessCount, failedCount, sucessCount/imageCount))
 
 
 
@@ -84,20 +85,33 @@ def singleImageProcessing(inputPath, showMode):
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Blur the image for better edge detection
     img_blur = cv2.GaussianBlur(img_gray, (gaussianBlurKernelSize,gaussianBlurKernelSize), 0)
+    if showMode == imageShowMode.showEachStep:
+        showImg("blur", img_blur)
 
     img_blur = increaseContrast(img_blur)
     #showImg("Increase Contrast",img_blur)
+    if showMode == imageShowMode.showEachStep:
+        showImg("increase contrast", img_blur)
 
     #open calculation, remove thin lines to find the textbox better
     if openCalcKernelSize != 0:
         img_blur= cv2.morphologyEx(img_blur, cv2.MORPH_OPEN, np.ones((openCalcKernelSize,openCalcKernelSize),np.uint8))
     #showImg("Open Calculation",img_blur)
+
+    
     
     # Canny Edge Detection
-    edged = cv2.Canny(image=img_blur, threshold1=canny_thrs1, threshold2=canny_thrs2) # Canny Edge Detection
+    edged = cv2.Canny(image=img_blur, threshold1=canny_thrs1, threshold2=canny_thrs2, apertureSize=3) # Canny Edge Detection
     # Display Canny Edge Detection Image
-    #showImg('Canny Edge Detection', edged)
+    if showMode == imageShowMode.showEachStep:
+        showImg('Canny Edge Detection', edged)
     
+
+    if dilateKernelSize != 0:
+        edged = cv2.dilate(img_blur, np.ones((openCalcKernelSize,openCalcKernelSize),np.uint8), iterations=1)
+    if showMode == imageShowMode.showEachStep:
+        showImg('dilate', edged)
+
     #Contour Dectection
     cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]#if don't select [0] it will error
     #Get the largest top 5 contours
@@ -109,7 +123,8 @@ def singleImageProcessing(inputPath, showMode):
         approx = cv2.approxPolyDP(c, approxStepLength*peri, True)
         
         cv2.drawContours(img, [approx], -1, (0,255,0), 2)
-        #showImg('Approx', img)
+        if showMode == imageShowMode.showEachStep:
+            showImg('Approx', img)
 
         #if we can find the approx is a rectangle, then that's the text box we want to find
         if len(approx) == 4:

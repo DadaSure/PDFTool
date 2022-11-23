@@ -32,18 +32,18 @@ re_order,
 adjust_width,
 adjust_ratio)
 '''
-def pdf_tool(pdf_tool_params: dict):
-    #extract params
-    operationCode = pdf_tool_params["operationCode"]    #操作类型，具体定义往上翻
-    img_or_pdf_inputDir = pdf_tool_params["img_or_pdf_inputDir"]    #待输入的文件夹路径，可以是待合并的图片或者是PDF文件
-    use_edge_detection = pdf_tool_params["use_edge_detection"]    #是否使用边缘检测来处理输入的图片
-    pdf_input_path = pdf_tool_params["pdf_input_path"]    #待操作的PDF文件路径
-    insert_pdf_path = pdf_tool_params["insert_pdf_path"]    #待插入的PDF文件路径
-    divide_range = pdf_tool_params["divide_range"]    #range to divide the PDF
-    delete_range = pdf_tool_params["delete_range"]    #range as index to delete PDF pages
-    re_order = pdf_tool_params["re_order"]    #range to rearrange the PDF
-    adjust_width = pdf_tool_params["adjust_width"]    #adjust to width
-    adjust_ratio = pdf_tool_params["adjust_ratio"]    #zoom scale
+def pdf_tool(operationCode=-1,img_or_pdf_inputDir="",use_edge_detection=0,pdf_input_path="",insert_pdf_path="",divide_range=[0],delete_range=[0,1],re_order=[0],adjust_width=500,adjust_ratio=100):
+    # #extract params
+    # operationCode = pdf_tool_params["operationCode"]  #操作类型，具体定义往上翻
+    # img_or_pdf_inputDir = pdf_tool_params["img_or_pdf_inputDir"]    #待输入的文件夹路径，可以是待合并的图片或者是PDF文件
+    # use_edge_detection = pdf_tool_params["use_edge_detection"]    #是否使用边缘检测来处理输入的图片
+    # pdf_input_path = pdf_tool_params["pdf_input_path"]    #待操作的PDF文件路径
+    # insert_pdf_path = pdf_tool_params["insert_pdf_path"]    #待插入的PDF文件路径
+    # divide_range = pdf_tool_params["divide_range"]    #range to divide the PDF
+    # delete_range = pdf_tool_params["delete_range"]    #range as index to delete PDF pages
+    # re_order = pdf_tool_params["re_order"]    #range to rearrange the PDF
+    # adjust_width = pdf_tool_params["adjust_width"]    #adjust to width
+    # adjust_ratio = pdf_tool_params["adjust_ratio"]    #zoom scale
 
     #path format checking
     print(img_or_pdf_inputDir)
@@ -74,6 +74,4 @@ def pdf_tool(pdf_tool_params: dict):
 
 if __name__ == "__main__":
     print("pdftool")
-    pdf_tool({"operationCode":1,
-    "img_or_pdf_inputDir":"/Users/shuo/Documents/PyProjects/PDFTest/edge_detection",
-    "use_edge_detection":1})
+    pdf_tool(operationCode=1,img_or_pdf_inputDir="/Users/shuo/Documents/PyProjects/PDFTest/edge_detection",use_edge_detection=1)
